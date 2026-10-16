@@ -99,6 +99,14 @@
             backdrop-filter: blur(8px);
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+
         @media print {
             body * {
                 visibility: hidden;
@@ -448,6 +456,15 @@
                 </button>
             </div>
 
+            <!-- 🌟 ป้ายแสดงสถานะสั่งอาหารเสร็จสิ้น (Hidden ไว้ก่อน) -->
+            <div id="orderSuccessAlert" class="hidden mb-4 p-4 bg-emerald-50 border-2 border-emerald-500 text-emerald-800 rounded-2xl animate-fade-in text-center shadow-sm">
+                <div class="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-1.5 text-lg shadow-md">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h4 class="font-bold text-sm text-emerald-900">สั่งอาหารเสร็จสิ้นเรียบร้อยแล้ว!</h4>
+                <p class="text-[11px] text-emerald-700 mt-0.5">รายการถูกส่งเข้าห้องครัวและเคลียร์ตะกร้าสินค้าเรียบร้อยแล้ว</p>
+            </div>
+
             <!-- PDF Container Area -->
             <div class="bg-gray-100 p-4 rounded-2xl flex justify-center max-h-[60vh] overflow-y-auto">
                 <div id="pdfContent" class="bg-white p-6 shadow-md border border-gray-300 text-black font-kanit" style="width: 80mm; min-height: 120mm;">
@@ -455,12 +472,18 @@
                 </div>
             </div>
 
-            <div class="flex gap-3 mt-5">
-                <button id="pdfDownloadBtn" onclick="downloadPDF()" class="flex-1 py-3 bg-red-600 text-white text-xs font-bold rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดไฟล์ PDF
+            <!-- Modal Control Buttons -->
+            <div class="flex flex-wrap gap-2.5 mt-5">
+                <button id="pdfDownloadBtn" onclick="downloadPDF()" class="flex-1 min-w-[140px] py-3 bg-red-600 text-white text-xs font-bold rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลด PDF
                 </button>
-                <button onclick="printDocumentDirect()" class="py-3 px-5 bg-white text-gray-900 border border-gray-300 text-xs font-bold rounded-2xl hover:bg-gray-100 transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-print"></i> พิมพ์ทันที (Print)
+                <button onclick="printDocumentDirect()" class="py-3 px-4 bg-white text-gray-900 border border-gray-300 text-xs font-bold rounded-2xl hover:bg-gray-100 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-print"></i> พิมพ์ทันที
+                </button>
+                
+                <!-- 🌟 ปุ่มสั่งอาหารเสร็จสิ้น (เพิ่มใหม่) -->
+                <button onclick="completeOrderProcess()" class="py-3 px-5 bg-emerald-600 text-white text-xs font-bold rounded-2xl hover:bg-emerald-700 transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-check text-sm"></i> สั่งอาหารเสร็จสิ้น
                 </button>
             </div>
         </div>
@@ -957,8 +980,7 @@
                             ${currentCart.map(i => `
                                 <tr>
                                     <td class="py-1.5 pr-2">
-                                        <div class="font-bold text-sm">${i.name}</div>
-                                        ${i.options.length ? `<div class="text-[10px] text-gray-600">• ${i.options.map(o => o.name).join(', ')}</div>` : ''}
+                                        <div class="font-bold text-sm">${i.name}</div>${i.options.length ? `<div class="text-[10px] text-gray-600">• ${i.options.map(o => o.name).join(', ')}</div>` : ''}
                                         ${i.note ? `<div class="text-[10px] text-red-600 font-medium italic">หมายเหตุ: ${i.note}</div>` : ''}
                                     </td>
                                     <td class="py-1.5 text-center font-bold text-base align-top">${i.qty}</td>
@@ -999,8 +1021,7 @@
                             ${currentCart.map(i => `
                                 <tr>
                                     <td class="py-1.5 pr-1">
-                                        <div class="font-semibold">${i.name}</div>
-                                        ${i.options.length ? `<div class="text-[9px] text-gray-500">${i.options.map(o => o.name).join(', ')}</div>` : ''}
+                                        <div class="font-semibold">${i.name}</div>${i.options.length ? `<div class="text-[9px] text-gray-500">${i.options.map(o => o.name).join(', ')}</div>` : ''}
                                     </td>
                                     <td class="py-1.5 text-center align-top">${i.qty}</td>
                                     <td class="py-1.5 text-right font-medium align-top">${(i.unitPrice * i.qty).toFixed(2)}</td>
@@ -1043,7 +1064,31 @@
             }
 
             saveOrderHistory(orderNum, tableNo, diningType, totals.grandTotal, paymentMethod, type);
+
+            // ซ่อนป้ายแจ้งเตือนเสร็จสิ้นไว้ก่อน
+            const alertBox = document.getElementById('orderSuccessAlert');
+            if (alertBox) alertBox.classList.add('hidden');
+
             document.getElementById('documentModal').classList.remove('hidden');
+        }
+
+        // 🌟 ฟังก์ชันเมื่อกดปุ่ม "สั่งอาหารเสร็จสิ้น"
+        function completeOrderProcess() {
+            // 1. แสดงกล่องแจ้งเตือนสั่งอาหารเสร็จสิ้น
+            const alertBox = document.getElementById('orderSuccessAlert');
+            if (alertBox) alertBox.classList.remove('hidden');
+
+            // 2. เคลียร์ตะกร้าสินค้า ล้างชื่อลูกค้า และสร้างเลขออเดอร์ใหม่
+            currentCart = [];
+            renderCart();
+            document.getElementById('customerName').value = '';
+            generateOrderNumber();
+
+            // 3. ปิด Modal อัตโนมัติหลังจากแสดงผล 1.8 วินาที
+            setTimeout(() => {
+                if (alertBox) alertBox.classList.add('hidden');
+                closeDocumentModal();
+            }, 1800);
         }
 
         function closeDocumentModal() {
@@ -1076,7 +1121,6 @@
             html2pdf().set(opt).from(element).save().then(() => {
                 btn.innerHTML = originalHTML;
                 btn.disabled = false;
-                generateOrderNumber();
             }).catch(err => {
                 console.error('PDF error:', err);
                 alert('เกิดข้อผิดพลาดในการดาวน์โหลด PDF กรุณาใช้ปุ่ม "พิมพ์ทันที" แทน');
