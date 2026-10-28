@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ร้านข้าวขาหมูจักรพรรดิ - Imperial Pork Knuckle POS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Kanit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="mhoo.png">
+    <!-- html2pdf.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- QRCode.js Library CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        kanit: ['Kanit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            red: '#DC2626',
+                            darkRed: '#991B1B',
+                            lightRed: '#FEF2F2',
+                            accent: '#EF4444',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #fef2f2 50%, #fef8f8 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(220, 38, 38, 0.12);
+            box-shadow: 0 10px 30px 0 rgba(220, 38, 38, 0.04);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(220, 38, 38, 0.12);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(220, 38, 38, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px -8px rgba(220, 38, 38, 0.18);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+        }
+
+        .glass-input:focus {
+            background: #ffffff;
+            border-color: #DC2626;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(220, 38, 38, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(220, 38, 38, 0.25);
+            border-radius: 999px;
+        }
+
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(8px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #pdfContent, #pdfContent * {
+                visibility: visible;
+            }
+            #pdfContent {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-900 antialiased pb-12">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-red-100 px-4 lg:px-8 py-3 mb-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+            
+            <!-- Logo & Brand -->
+            <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
+                <div class="flex items-center space-x-3">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-red-700 to-red-500 text-white flex items-center justify-center font-bold text-2xl shadow-lg shadow-red-500/30">
+                        帝
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-gray-900 leading-none" data-i18n="shopTitle">ร้านข้าวขาหมูจักรพรรดิ</h1>
+                        <span class="text-xs font-semibold text-red-600 tracking-wider">IMPERIAL PORK KNUCKLE POS</span>
+                    </div>
+                </div>
+
+                <!-- Clock Display Mobile/Tablet -->
+                <div class="text-right block sm:hidden shrink-0">
+                    <div id="mobileLiveClock" class="text-xs font-bold text-gray-800 whitespace-nowrap">00:00:00</div>
+                    <div id="mobileLiveDate" class="text-[10px] text-gray-500 whitespace-nowrap">16 ต.ค. 2026</div>
+                </div>
+            </div>
+
+            <!-- Header Middle/Center Buttons Container -->
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 w-full md:w-auto my-1 md:my-0">
+                <!-- PromptPay Config Button -->
+                <button onclick="openPromptPaySettings()" class="px-3 py-2 text-xs font-medium bg-white hover:bg-red-50 text-red-700 border border-red-200 rounded-xl transition duration-200 flex items-center gap-1.5 shadow-sm" title="ตั้งค่าพร้อมเพย์">
+                    <i class="fa-solid fa-qrcode text-red-600"></i> <span id="headerPromptPayDisplay">084-284-1808</span>
+                </button>
+
+                <!-- History Button -->
+                <button onclick="toggleHistoryModal()" class="px-3 py-2 text-xs font-medium bg-white hover:bg-red-600 hover:text-white text-gray-800 border border-gray-200 hover:border-red-600 rounded-xl transition duration-200 flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="btnHistory">ประวัติสั่งซื้อ</span>
+                </button>
+
+                <!-- Clear Order Button -->
+                <button onclick="clearCurrentOrder()" class="px-3 py-2 text-xs font-medium bg-red-50 hover:bg-red-600 hover:text-white border border-red-200 text-red-600 rounded-xl transition duration-200 flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-trash-can"></i> <span data-i18n="btnClear">ล้างรายการ</span>
+                </button>
+
+                <!-- Static Menu ปุ่มสลับภาษา TH | EN | ZH -->
+                <div class="flex items-center bg-white border border-red-200 p-1 rounded-xl shadow-sm text-xs font-bold gap-1">
+                    <button onclick="changeLanguage('th')" id="lang-btn-th" class="px-2.5 py-1 rounded-lg transition bg-red-600 text-white shadow-sm">TH</button>
+                    <button onclick="changeLanguage('en')" id="lang-btn-en" class="px-2.5 py-1 rounded-lg transition text-gray-600 hover:bg-red-50 hover:text-red-600">EN</button>
+                    <button onclick="changeLanguage('zh')" id="lang-btn-zh" class="px-2.5 py-1 rounded-lg transition text-gray-600 hover:bg-red-50 hover:text-red-600">ZH</button>
+                </div>
+            </div>
+
+            <!-- Clock Display Desktop -->
+            <div class="text-right hidden sm:block shrink-0">
+                <div id="liveClock" class="text-sm font-bold text-gray-800 whitespace-nowrap">00:00:00</div>
+                <div id="liveDate" class="text-xs text-gray-500 whitespace-nowrap">16 ต.ค. 2026</div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Panel: Menu & Metadata (7 Cols) -->
+            <section class="lg:col-span-7 space-y-6">
+                
+                <!-- Table & Customer Card -->
+                <div class="glass-panel rounded-3xl p-5 border border-red-100 shadow-sm">
+                    <h2 class="text-xs font-bold tracking-wider text-red-700 uppercase mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-red-600"></i> <span data-i18n="tableDetailsTitle">ข้อมูลโต๊ะและลูกค้า (Order Details)</span>
+                    </h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1" data-i18n="lblTableNo">เลขโต๊ะ / ช่องทาง</label>
+                            <input type="text" id="tableNo" value="T-01" readonly class="glass-input w-full px-3 py-2 rounded-xl text-sm font-semibold text-red-700 bg-red-50/50 text-center cursor-not-allowed border-red-100">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1" data-i18n="lblCustomerName">ชื่อลูกค้า (ตัวเลือก)</label>
+                            <input type="text" id="customerName" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-gray-900" placeholder="ลูกค้าทั่วไป" data-i18n-ph="phCustomerName">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1" data-i18n="lblOrderNum">เลขที่ออเดอร์</label>
+                            <input type="text" id="orderNum" readonly class="glass-input w-full px-3 py-2 rounded-xl text-sm font-mono font-semibold text-gray-700 bg-red-50/50 text-center cursor-not-allowed border-red-100">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1" data-i18n="lblDiningType">การทาน</label>
+                            <select id="diningType" class="glass-input w-full px-3 py-2 rounded-xl text-sm text-gray-900 font-medium">
+                                <option value="ทานที่ร้าน" data-i18n="optDineIn">🍽️ ทานที่ร้าน</option>
+                                <option value="ใส่ห่อ/กลับบ้าน" data-i18n="optTakeaway">🛍️ ใส่ห่อ (กลับบ้าน)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Food Categories Filter -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                    <button onclick="filterCategory('all')" class="cat-btn active px-4 py-2 rounded-2xl text-xs font-bold transition border border-red-600 bg-red-600 text-white whitespace-nowrap shadow-md shadow-red-600/20" data-cat="all" data-i18n="catAll">
+                        ทั้งหมด
+                    </button>
+                    <button onclick="filterCategory('main')" class="cat-btn px-4 py-2 rounded-2xl text-xs font-bold transition border border-red-100 bg-white/90 text-gray-800 hover:border-red-500 whitespace-nowrap shadow-sm" data-cat="main" data-i18n="catMain">
+                        🍚 จานหลัก / ข้าว
+                    </button>
+                    <button onclick="filterCategory('side')" class="cat-btn px-4 py-2 rounded-2xl text-xs font-bold transition border border-red-100 bg-white/90 text-gray-800 hover:border-red-500 whitespace-nowrap shadow-sm" data-cat="side" data-i18n="catSide">
+                        🍖 กับข้าว / จานเดี่ยว
+                    </button>
+                    <button onclick="filterCategory('soup')" class="cat-btn px-4 py-2 rounded-2xl text-xs font-bold transition border border-red-100 bg-white/90 text-gray-800 hover:border-red-500 whitespace-nowrap shadow-sm" data-cat="soup" data-i18n="catSoup">
+                        🥣 ต้ม / ซุป
+                    </button>
+                    <button onclick="filterCategory('drink')" class="cat-btn px-4 py-2 rounded-2xl text-xs font-bold transition border border-red-100 bg-white/90 text-gray-800 hover:border-red-500 whitespace-nowrap shadow-sm" data-cat="drink" data-i18n="catDrink">
+                        🥤 เครื่องดื่ม
+                    </button>
+                </div>
+
+                <!-- Menu Items Grid -->
+                <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+
+            </section>
+
+            <!-- Right Panel: Order Cart & Summary (5 Cols) -->
+            <section class="lg:col-span-5">
+                <div class="glass-panel rounded-3xl p-6 border border-red-100 shadow-sm sticky top-24">
+                    <div class="flex items-center justify-between pb-4 border-b border-red-100">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-receipt text-lg text-red-600"></i>
+                            <h2 class="text-base font-bold text-gray-900 uppercase tracking-wide" data-i18n="cartTitle">ตะกร้าสั่งซื้อ (Cart)</h2>
+                        </div>
+                        <span id="cartBadge" class="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">0 รายการ</span>
+                    </div>
+
+                    <!-- Cart Item List -->
+                    <div id="cartItems" class="my-4 max-h-[300px] overflow-y-auto space-y-3 pr-1">
+                        <div id="emptyCart" class="text-center py-12 text-gray-400">
+                            <i class="fa-solid fa-utensils text-4xl mb-3 opacity-30 text-red-400"></i>
+                            <p class="text-sm font-medium" data-i18n="emptyCartText">ยังไม่มีรายการอาหารในตะกร้า</p>
+                            <p class="text-xs text-gray-400 mt-1" data-i18n="emptyCartSub">คลิกเลือกรายการอาหารด้านซ้ายเพื่อเพิ่ม</p>
+                        </div>
+                    </div>
+
+                    <!-- Calculation Summary -->
+                    <div class="space-y-2 pt-4 border-t border-red-100 text-sm">
+                        <div class="flex justify-between text-gray-600">
+                            <span data-i18n="lblSubtotal">ยอดรวมอาหาร (Subtotal)</span>
+                            <span id="subtotalVal" class="font-bold text-gray-900">฿0.00</span>
+                        </div>
+
+                        <!-- Discount & VAT Input Row -->
+                        <div class="grid grid-cols-2 gap-3 py-1.5">
+                            <div>
+                                <label class="block text-[11px] font-medium text-gray-500 mb-0.5" data-i18n="lblDiscountPct">ส่วนลด Discount (%)</label>
+                                <input type="number" id="discountPercent" min="0" max="100" value="0" oninput="calculateTotal()" class="glass-input w-full px-2.5 py-1.5 rounded-lg text-xs font-bold text-gray-900 text-right" placeholder="0">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-gray-500 mb-0.5" data-i18n="lblVatPct">ภาษี VAT (%)</label>
+                                <input type="number" id="vatPercent" min="0" max="100" value="0" oninput="calculateTotal()" class="glass-input w-full px-2.5 py-1.5 rounded-lg text-xs font-bold text-gray-900 text-right" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between text-gray-600 text-xs">
+                            <span data-i18n="lblDiscountAmt">ส่วนลด (Discount Amount)</span>
+                            <span id="discountVal" class="text-red-600 font-semibold">-฿0.00</span>
+                        </div>
+
+                        <div class="flex justify-between text-gray-600 text-xs">
+                            <span data-i18n="lblVatAmt">ภาษีมูลค่าเพิ่ม (VAT Amount)</span>
+                            <span id="vatVal" class="font-semibold text-gray-800">+฿0.00</span>
+                        </div>
+
+                        <!-- Payment Method Selector -->
+                        <div class="pt-2">
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5" data-i18n="lblPaymentMethod">วิธีการชำระเงิน (Payment Method)</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="paymentMethod" value="สแกน QR Code" checked class="peer sr-only">
+                                    <div class="peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 border border-gray-200 rounded-xl p-2.5 text-center text-xs font-semibold transition bg-white hover:bg-red-50/50 shadow-sm">
+                                        <i class="fa-solid fa-qrcode mb-1 block text-base"></i> <span data-i18n="payQR">สแกน QR</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="paymentMethod" value="เงินสด" class="peer sr-only">
+                                    <div class="peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 border border-gray-200 rounded-xl p-2.5 text-center text-xs font-semibold transition bg-white hover:bg-red-50/50 shadow-sm">
+                                        <i class="fa-solid fa-money-bill-wave mb-1 block text-base"></i> <span data-i18n="payCash">เงินสด</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="paymentMethod" value="โอนเงินผ่านบัญชี" class="peer sr-only">
+                                    <div class="peer-checked:bg-red-600 peer-checked:text-white peer-checked:border-red-600 border border-gray-200 rounded-xl p-2.5 text-center text-xs font-semibold transition bg-white hover:bg-red-50/50 shadow-sm">
+                                        <i class="fa-solid fa-building-columns mb-1 block text-base"></i> <span data-i18n="payTransfer">โอนบัญชี</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Grand Total Card -->
+                        <div class="mt-4 p-4 rounded-2xl bg-gradient-to-r from-red-600 to-red-700 text-white flex items-center justify-between shadow-lg shadow-red-600/25">
+                            <div>
+                                <div class="text-xs text-red-100 font-medium" data-i18n="lblGrandTotal">ยอดชำระสุทธิ (Grand Total)</div>
+                                <div class="text-2xl font-black tracking-tight" id="grandTotalVal">฿0.00</div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-md" data-i18n="currencyTHB">บาท (THB)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Checkout Buttons -->
+                    <div class="grid grid-cols-2 gap-3 mt-5">
+                        <button onclick="handleCheckoutProcess('slip')" class="px-3 py-3 bg-white text-red-700 font-bold border-2 border-red-600 rounded-2xl hover:bg-red-50 transition duration-200 flex items-center justify-center gap-2 text-xs shadow-sm">
+                            <i class="fa-solid fa-kitchen-set"></i> <span data-i18n="btnKitchenSlip">สลิปส่งครัว (Slip)</span>
+                        </button>
+                        <button onclick="handleCheckoutProcess('receipt')" class="px-3 py-3 bg-red-600 text-white font-bold rounded-2xl hover:bg-red-700 transition duration-200 flex items-center justify-center gap-2 text-xs shadow-md shadow-red-600/30">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> <span data-i18n="btnPayReceipt">ชำระเงิน & ออกใบเสร็จ</span>
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Modal 1: PromptPay Config -->
+    <div id="promptPaySettingsModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden p-4">
+        <div class="glass-panel w-full max-w-sm rounded-3xl p-6 border border-red-200 shadow-2xl bg-white relative">
+            <button onclick="closePromptPaySettings()" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 w-8 h-8 rounded-full flex items-center justify-center border border-gray-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center font-bold text-lg">
+                    <i class="fa-solid fa-gear"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-gray-900" data-i18n="ppModalTitle">ตั้งค่าบัญชี PromptPay</h3>
+                    <p class="text-xs text-gray-500" data-i18n="ppModalSub">สำหรับรับเงินผ่าน QR Code ของร้าน</p>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1" data-i18n="ppInputLbl">หมายเลขพร้อมเพย์ (เบอร์โทร / เลขบัตร)</label>
+                    <input type="text" id="promptPayInput" class="glass-input w-full px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-900 text-center tracking-wider" placeholder="เช่น 0842841808">
+                    <p class="text-[11px] text-gray-400 mt-1" data-i18n="ppInputHint">* กรอกเบอร์โทร 10 หลัก หรือ เลขประจำตัว/บัตรประชาชน 13 หลัก</p>
+                </div>
+                <button onclick="savePromptPaySetting()" class="w-full py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl hover:bg-red-700 transition shadow-md" data-i18n="btnSave">
+                    บันทึกข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: QR Payment Modal -->
+    <div id="qrPaymentModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden p-4">
+        <div class="glass-panel w-full max-w-md rounded-3xl p-6 border border-red-200 shadow-2xl bg-white relative text-center">
+            <button onclick="closeQRPaymentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 w-8 h-8 rounded-full flex items-center justify-center border border-gray-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="inline-block px-3 py-1 bg-red-50 border border-red-200 text-red-600 text-xs font-bold rounded-full mb-3">
+                <i class="fa-solid fa-qrcode mr-1"></i> PromptPay Dynamic QR Code
+            </div>
+            <h3 class="text-lg font-bold text-gray-900" data-i18n="qrModalTitle">สแกนเพื่อชำระเงิน</h3>
+            <p class="text-xs text-gray-500 mb-4" data-i18n="shopTitle">ร้านข้าวขาหมูจักรพรรดิ</p>
+
+            <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 rounded-2xl p-3 mb-4">
+                <div class="text-xs text-gray-500" data-i18n="lblNetTotal">ยอดเงินที่ต้องชำระสุทธิ</div>
+                <div id="qrModalAmount" class="text-3xl font-black text-red-600">฿0.00</div>
+            </div>
+
+            <div class="flex justify-center my-3">
+                <div class="p-3 bg-white border-2 border-red-600 rounded-2xl shadow-md inline-block">
+                    <div id="qrcodeCanvas"></div>
+                </div>
+            </div>
+
+            <p class="text-xs text-gray-600 mb-4">
+                <span data-i18n="lblPromptPayNum">หมายเลขพร้อมเพย์</span>: <span id="qrModalPromptPayNum" class="font-bold text-black">084-284-1808</span>
+            </p>
+
+            <div class="space-y-2">
+                <button onclick="confirmPaymentAndGenerateDoc()" class="w-full py-3 bg-red-600 text-white text-xs font-bold rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-check text-base"></i> <span data-i18n="btnConfirmPay">ตรวจสอบสลิปแล้ว / ยืนยันรับเงิน</span>
+                </button>
+                <button onclick="closeQRPaymentModal()" class="w-full py-2 bg-gray-100 text-gray-600 text-xs font-semibold rounded-xl hover:bg-gray-200 transition" data-i18n="btnCancel">
+                    ยกเลิก / ย้อนกลับ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Item Options -->
+    <div id="optionModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden p-4">
+        <div class="glass-panel w-full max-w-md rounded-3xl p-6 border border-red-200 shadow-2xl bg-white relative">
+            <button onclick="closeOptionModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 w-8 h-8 rounded-full flex items-center justify-center border border-gray-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="flex items-center gap-3 mb-4">
+                <div id="modalIcon" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-600 to-red-500 text-white flex items-center justify-center text-xl font-bold shadow-md shadow-red-500/20">
+                    🍖
+                </div>
+                <div>
+                    <h3 id="modalTitle" class="text-lg font-bold text-gray-900 leading-tight">ชื่อเมนู</h3>
+                    <p id="modalPrice" class="text-sm font-bold text-red-600">฿0.00</p>
+                </div>
+            </div>
+
+            <div class="space-y-4 my-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2" data-i18n="optTitle">ตัวเลือกเพิ่มเติม (Options)</label>
+                    <div class="grid grid-cols-2 gap-2 text-xs" id="optionsContainer">
+                        <!-- Dynamic checkboxes -->
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1" data-i18n="lblNote">หมายเหตุเพิ่มเติม (Note)</label>
+                    <input type="text" id="modalNote" class="glass-input w-full px-3 py-2 rounded-xl text-xs text-gray-900" placeholder="เช่น เผ็ดน้อย, น้ำราดเยอะๆ" data-i18n-ph="phNote">
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button onclick="confirmAddToCart()" class="w-full py-3 bg-red-600 text-white text-xs font-bold rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cart-plus"></i> <span data-i18n="btnAddToCart">เพิ่มลงในตะกร้า</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Document Preview & PDF Export -->
+    <div id="documentModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden p-4 overflow-y-auto">
+        <div class="glass-panel w-full max-w-xl rounded-3xl p-6 border border-red-200 shadow-2xl bg-white relative my-8">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
+                <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-eye text-red-600"></i> <span data-i18n="docPreviewTitle">พรีวิวเอกสาร (Document Preview)</span>
+                </h3>
+                <button onclick="closeDocumentModal()" class="text-gray-400 hover:text-red-600 w-8 h-8 rounded-full flex items-center justify-center border border-gray-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- ป้ายแสดงสถานะสั่งอาหารเสร็จสิ้น -->
+            <div id="orderSuccessAlert" class="hidden mb-4 p-4 bg-emerald-50 border-2 border-emerald-500 text-emerald-800 rounded-2xl animate-fade-in text-center shadow-sm">
+                <div class="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-1.5 text-lg shadow-md">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h4 class="font-bold text-sm text-emerald-900" data-i18n="orderSuccessTitle">สั่งอาหารเสร็จสิ้นเรียบร้อยแล้ว!</h4>
+                <p class="text-[11px] text-emerald-700 mt-0.5" data-i18n="orderSuccessSub">รายการถูกส่งเข้าห้องครัวและเคลียร์ตะกร้าสินค้าเรียบร้อยแล้ว</p>
+            </div>
+
+            <!-- PDF Container Area -->
+            <div class="bg-gray-100 p-4 rounded-2xl flex justify-center max-h-[60vh] overflow-y-auto">
+                <div id="pdfContent" class="bg-white p-6 shadow-md border border-gray-300 text-black font-kanit" style="width: 80mm; min-height: 120mm;">
+                    <!-- Rendered printable template -->
+                </div>
+            </div>
+
+            <!-- Modal Control Buttons -->
+            <div class="flex flex-wrap gap-2.5 mt-5">
+                <button id="pdfDownloadBtn" onclick="downloadPDF()" class="flex-1 min-w-[140px] py-3 bg-red-600 text-white text-xs font-bold rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-pdf"></i> <span data-i18n="btnDownloadPDF">ดาวน์โหลด PDF</span>
+                </button>
+                <button onclick="printDocumentDirect()" class="py-3 px-4 bg-white text-gray-900 border border-gray-300 text-xs font-bold rounded-2xl hover:bg-gray-100 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-print"></i> <span data-i18n="btnPrintDirect">พิมพ์ทันที</span>
+                </button>
+                
+                <button onclick="completeOrderProcess()" class="py-3 px-5 bg-emerald-600 text-white text-xs font-bold rounded-2xl hover:bg-emerald-700 transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-check text-sm"></i> <span data-i18n="btnCompleteOrder">สั่งอาหารเสร็จสิ้น</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 5: Order History (แสดงแยกตามเลขโต๊ะ) -->
+    <div id="historyModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-3xl p-6 border border-red-200 shadow-2xl bg-white relative max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+                <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-red-600"></i> 
+                    <span>ประวัติการสั่งซื้อ <span id="historyTableTitle" class="text-red-600 font-extrabold"></span></span>
+                </h3>
+                <button onclick="toggleHistoryModal()" class="text-gray-400 hover:text-red-600 w-8 h-8 rounded-full flex items-center justify-center border border-gray-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="historyList" class="my-4 overflow-y-auto flex-1 space-y-3 pr-2">
+                <!-- History Dynamic Render -->
+            </div>
+
+            <div class="pt-3 border-t border-gray-200 flex justify-between items-center">
+                <span id="historyCount" class="text-xs text-gray-500">รวมทั้งหมด 0 ออเดอร์</span>
+                <button onclick="clearHistory()" class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 border border-red-200 rounded-xl" data-i18n="btnClearHistory">
+                    ลบประวัติของโต๊ะนี้
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Code -->
+    <script>
+        let currentLang = 'th';
+
+        const i18n = {
+            th: {
+                shopTitle: "ร้านข้าวขาหมูจักรพรรดิ",
+                btnHistory: "ประวัติสั่งซื้อ",
+                btnClear: "ล้างรายการ",
+                tableDetailsTitle: "ข้อมูลโต๊ะและลูกค้า (Order Details)",
+                lblTableNo: "เลขโต๊ะ / ช่องทาง",
+                lblCustomerName: "ชื่อลูกค้า (ตัวเลือก)",
+                phCustomerName: "ลูกค้าทั่วไป",
+                lblOrderNum: "เลขที่ออเดอร์",
+                lblDiningType: "การทาน",
+                optDineIn: "🍽️ ทานที่ร้าน",
+                optTakeaway: "🛍️ ใส่ห่อ (กลับบ้าน)",
+                catAll: "ทั้งหมด",
+                catMain: "🍚 จานหลัก / ข้าว",
+                catSide: "🍖 กับข้าว / จานเดี่ยว",
+                catSoup: "🥣 ต้ม / ซุป",
+                catDrink: "🥤 เครื่องดื่ม",
+                cartTitle: "ตะกร้าสั่งซื้อ (Cart)",
+                emptyCartText: "ยังไม่มีรายการอาหารในตะกร้า",
+                emptyCartSub: "คลิกเลือกรายการอาหารด้านซ้ายเพื่อเพิ่ม",
+                lblSubtotal: "ยอดรวมอาหาร (Subtotal)",
+                lblDiscountPct: "ส่วนลด Discount (%)",
+                lblVatPct: "ภาษี VAT (%)",
+                lblDiscountAmt: "ส่วนลด (Discount Amount)",
+                lblVatAmt: "ภาษีมูลค่าเพิ่ม (VAT Amount)",
+                lblPaymentMethod: "วิธีการชำระเงิน (Payment Method)",
+                payQR: "สแกน QR",
+                payCash: "เงินสด",
+                payTransfer: "โอนบัญชี",
+                lblGrandTotal: "ยอดชำระสุทธิ (Grand Total)",
+                currencyTHB: "บาท (THB)",
+                btnKitchenSlip: "สลิปส่งครัว (Slip)",
+                btnPayReceipt: "ชำระเงิน & ออกใบเสร็จ",
+                ppModalTitle: "ตั้งค่าบัญชี PromptPay",
+                ppModalSub: "สำหรับรับเงินผ่าน QR Code ของร้าน",
+                ppInputLbl: "หมายเลขพร้อมเพย์ (เบอร์โทร / เลขบัตร)",
+                ppInputHint: "* กรอกเบอร์โทร 10 หลัก หรือ เลขประจำตัว/บัตรประชาชน 13 หลัก",
+                btnSave: "บันทึกข้อมูล",
+                qrModalTitle: "สแกนเพื่อชำระเงิน",
+                lblNetTotal: "ยอดเงินที่ต้องชำระสุทธิ",
+                lblPromptPayNum: "หมายเลขพร้อมเพย์",
+                btnConfirmPay: "ตรวจสอบสลิปแล้ว / ยืนยันรับเงิน",
+                btnCancel: "ยกเลิก / ย้อนกลับ",
+                optTitle: "ตัวเลือกเพิ่มเติม (Options)",
+                lblNote: "หมายเหตุเพิ่มเติม (Note)",
+                phNote: "เช่น เผ็ดน้อย, น้ำราดเยอะๆ, ไม่ใส่กระเทียม",
+                btnAddToCart: "เพิ่มลงในตะกร้า",
+                docPreviewTitle: "พรีวิวเอกสาร (Document Preview)",
+                orderSuccessTitle: "สั่งอาหารเสร็จสิ้นเรียบร้อยแล้ว!",
+                orderSuccessSub: "รายการถูกส่งเข้าห้องครัวและเคลียร์ตะกร้าสินค้าเรียบร้อยแล้ว",
+                btnDownloadPDF: "ดาวน์โหลด PDF",
+                btnPrintDirect: "พิมพ์ทันที",
+                btnCompleteOrder: "สั่งอาหารเสร็จสิ้น",
+                historyTitle: "ประวัติการสั่งซื้อ (Order History)",
+                btnClearHistory: "ลบประวัติของโต๊ะนี้",
+                selectOptionsNote: "เลือกออปชัน / หมายเหตุ",
+                itemsCountBadge: "รายการ",
+                deleteItem: "ลบ",
+                dishUnit: "จาน",
+                kitchenSlipHeader: "ใบส่งรายการ / สลิปครัว",
+                kitchenSlipFooter: "-- ใบส่งรายการสำหรับแม่ครัว --",
+                receiptHeader: "ใบเสร็จรับเงิน / RECEIPT",
+                receiptSubHeader: "สาขาใหญ่ ถ.มิตรภาพ | โทร. 084-284-1808",
+                receiptNoLbl: "เลขที่ใบเสร็จ",
+                dateTimeLbl: "วันที่-เวลา",
+                tableDiningLbl: "โต๊ะ / การทาน",
+                customerLbl: "ลูกค้า",
+                itemColLbl: "รายการ",
+                qtyColLbl: "จำนวน",
+                totalColLbl: "รวม (฿)",
+                subtotalPrintLbl: "ราคารวมอาหาร",
+                paidStatusLbl: "(ชำระแล้ว)",
+                thankYouText: "ขอบพระคุณที่อุดหนุนข้าวขาหมูจักรพรรดิ",
+                comeAgainText: "Please Come Again & Have a Great Day"
+            },
+            en: {
+                shopTitle: "Imperial Pork Knuckle",
+                btnHistory: "Order History",
+                btnClear: "Clear Order",
+                tableDetailsTitle: "Order Details",
+                lblTableNo: "Table No. / Channel",
+                lblCustomerName: "Customer Name (Optional)",
+                phCustomerName: "General Customer",
+                lblOrderNum: "Order No.",
+                lblDiningType: "Dining Type",
+                optDineIn: "🍽️ Dine-in",
+                optTakeaway: "🛍️ Takeaway",
+                catAll: "All",
+                catMain: "🍚 Main Dish / Rice",
+                catSide: "🍖 Side Dish / Ala carte",
+                catSoup: "🥣 Soup / Stew",
+                catDrink: "🥤 Drinks",
+                cartTitle: "Cart",
+                emptyCartText: "No items in cart",
+                emptyCartSub: "Click items on the left to add",
+                lblSubtotal: "Subtotal",
+                lblDiscountPct: "Discount (%)",
+                lblVatPct: "VAT (%)",
+                lblDiscountAmt: "Discount Amount",
+                lblVatAmt: "VAT Amount",
+                lblPaymentMethod: "Payment Method",
+                payQR: "Scan QR",
+                payCash: "Cash",
+                payTransfer: "Transfer",
+                lblGrandTotal: "Grand Total",
+                currencyTHB: "THB (฿)",
+                btnKitchenSlip: "Kitchen Slip",
+                btnPayReceipt: "Pay & Print Receipt",
+                ppModalTitle: "PromptPay Account Settings",
+                ppModalSub: "For receiving payments via store QR Code",
+                ppInputLbl: "PromptPay No. (Phone / ID)",
+                ppInputHint: "* Enter 10-digit phone or 13-digit ID card number",
+                btnSave: "Save Settings",
+                qrModalTitle: "Scan to Pay",
+                lblNetTotal: "Net Payable Amount",
+                lblPromptPayNum: "PromptPay No.",
+                btnConfirmPay: "Slip Verified / Confirm Payment",
+                btnCancel: "Cancel / Back",
+                optTitle: "Options",
+                lblNote: "Note",
+                phNote: "e.g. Less spicy, extra sauce",
+                btnAddToCart: "Add to Cart",
+                docPreviewTitle: "Document Preview",
+                orderSuccessTitle: "Order Completed Successfully!",
+                orderSuccessSub: "Order sent to kitchen and cart cleared.",
+                btnDownloadPDF: "Download PDF",
+                btnPrintDirect: "Print Now",
+                btnCompleteOrder: "Complete Order",
+                historyTitle: "Order History",
+                btnClearHistory: "Clear Table History",
+                selectOptionsNote: "Select Options / Note",
+                itemsCountBadge: "items",
+                deleteItem: "Delete",
+                dishUnit: "dish",
+                kitchenSlipHeader: "KITCHEN SLIP",
+                kitchenSlipFooter: "-- Kitchen Order Slip --",
+                receiptHeader: "RECEIPT / TAX INVOICE",
+                receiptSubHeader: "Main Branch, Mittraphap Rd. | Tel. 084-284-1808",
+                receiptNoLbl: "Receipt No.",
+                dateTimeLbl: "Date-Time",
+                tableDiningLbl: "Table / Type",
+                customerLbl: "Customer",
+                itemColLbl: "Item",
+                qtyColLbl: "Qty",
+                totalColLbl: "Total (฿)",
+                subtotalPrintLbl: "Subtotal",
+                paidStatusLbl: "(Paid)",
+                thankYouText: "Thank you for visiting Imperial Pork Knuckle",
+                comeAgainText: "Please Come Again & Have a Great Day"
+            },
+            zh: {
+                shopTitle: "帝王猪脚饭 POS",
+                btnHistory: "历史订单",
+                btnClear: "清空购物车",
+                tableDetailsTitle: "桌号与顾客信息 (Order Details)",
+                lblTableNo: "桌号 / 渠道",
+                lblCustomerName: "顾客姓名 (可选)",
+                phCustomerName: "普通顾客",
+                lblOrderNum: "订单号",
+                lblDiningType: "就餐方式",
+                optDineIn: "🍽️ 堂食",
+                optTakeaway: "🛍️ 打包外带",
+                catAll: "全部",
+                catMain: "🍚 主食 / 米饭",
+                catSide: "🍖 单点 / 切盘",
+                catSoup: "🥣 汤品 / 炖汤",
+                catDrink: "🥤 饮料",
+                cartTitle: "购物车 (Cart)",
+                emptyCartText: "购物车暂无商品",
+                emptyCartSub: "请点击左侧菜单添加商品",
+                lblSubtotal: "小计 (Subtotal)",
+                lblDiscountPct: "折扣 Discount (%)",
+                lblVatPct: "税率 VAT (%)",
+                lblDiscountAmt: "折扣金额",
+                lblVatAmt: "增值税额",
+                lblPaymentMethod: "支付方式",
+                payQR: "扫码支付",
+                payCash: "现金",
+                payTransfer: "银行转账",
+                lblGrandTotal: "应付总额 (Grand Total)",
+                currencyTHB: "泰铢 (THB)",
+                btnKitchenSlip: "厨房小票 (Slip)",
+                btnPayReceipt: "结账并打印小票",
+                ppModalTitle: "PromptPay 账号设置",
+                ppModalSub: "用于店铺 QR Code 收款",
+                ppInputLbl: "PromptPay 号码 (电话/身份证)",
+                ppInputHint: "* 输入10位电话号码或13位身份证号",
+                btnSave: "保存设置",
+                qrModalTitle: "扫码支付",
+                lblNetTotal: "应付总金额",
+                lblPromptPayNum: "PromptPay 号码",
+                btnConfirmPay: "已核对小票 / 确认收款",
+                btnCancel: "取消 / 返回",
+                optTitle: "附加选项 (Options)",
+                lblNote: "特殊备注 (Note)",
+                phNote: "例如：少辣、多汁、不加蒜",
+                btnAddToCart: "加入购物车",
+                docPreviewTitle: "单据预览 (Preview)",
+                orderSuccessTitle: "订单已成功完成！",
+                orderSuccessSub: "订单已送达厨房并清空购物车",
+                btnDownloadPDF: "下载 PDF",
+                btnPrintDirect: "打印小票",
+                btnCompleteOrder: "完成订单",
+                historyTitle: "历史订单 (Order History)",
+                btnClearHistory: "删除该桌历史",
+                selectOptionsNote: "选择选项 / 备注",
+                itemsCountBadge: "项",
+                deleteItem: "删除",
+                dishUnit: "份",
+                kitchenSlipHeader: "厨房送菜单 / 厨单",
+                kitchenSlipFooter: "-- 厨房备餐专用单 --",
+                receiptHeader: "收据 / RECEIPT",
+                receiptSubHeader: "总店 友谊路 | 电话 084-284-1808",
+                receiptNoLbl: "收据编号",
+                dateTimeLbl: "日期时间",
+                tableDiningLbl: "桌号 / 方式",
+                customerLbl: "顾客",
+                itemColLbl: "菜品",
+                qtyColLbl: "数量",
+                totalColLbl: "小计 (฿)",
+                subtotalPrintLbl: "菜品总价",
+                paidStatusLbl: "(已支付)",
+                thankYouText: "感谢光临帝王猪脚饭",
+                comeAgainText: "Please Come Again & Have a Great Day"
+            }
+        };
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+
+            ['th', 'en', 'zh'].forEach(l => {
+                const btn = document.getElementById(`lang-btn-${l}`);
+                if (l === lang) {
+                    btn.className = "px-2.5 py-1 rounded-lg transition bg-red-600 text-white shadow-sm";
+                } else {
+                    btn.className = "px-2.5 py-1 rounded-lg transition text-gray-600 hover:bg-red-50 hover:text-red-600";
+                }
+            });
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang] && i18n[lang][key]) {
+                    el.textContent = i18n[lang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (i18n[lang] && i18n[lang][key]) {
+                    el.placeholder = i18n[lang][key];
+                }
+            });
+
+            renderMenuGrid(MENU_ITEMS);
+            renderCart();
+        }
+
+        const kitchenChannel = new BroadcastChannel('khamoo_order_channel');
+
+        function sendOrderToKitchen(orderData) {
+            try {
+                kitchenChannel.postMessage(orderData);
+            } catch (e) {
+                console.error('BroadcastChannel error:', e);
+            }
+
+            let existingOrders = JSON.parse(localStorage.getItem('khamoo_pending_orders') || '[]');
+            if (!existingOrders.some(o => o.id === orderData.id)) {
+                existingOrders.unshift(orderData);
+                localStorage.setItem('khamoo_pending_orders', JSON.stringify(existingOrders));
+            }
+            
+            localStorage.setItem('khamoo_new_order_trigger', Date.now().toString());
+        }
+
+        const MENU_ITEMS = [
+            { id: 'm1', category: 'main', name: 'ข้าวขาหมูธรรมดา', price: 60, icon: '🍚', description: 'เนื้อ หนัง ไข่ ผักกาดดอง ครบเครื่อง' },
+            { id: 'm2', category: 'main', name: 'ข้าวขาหมูพิเศษ', price: 75, icon: '👑', description: 'ปริมาณจุใจ เพิ่มเนื้อหมูเเละไข่' },
+            { id: 'm3', category: 'main', name: 'ข้าวเนื้อหนังล้วน', price: 70, icon: '🍖', description: 'คัดเนื้อนุ่มแน่น หนังละมุนลิ้น' },
+            { id: 'm4', category: 'side', name: 'คาเงะ / คากิ (จานเดี่ยว)', price: 120, icon: '🥩', description: 'คากิตุ๋นยาจีนเปื่อยร่อน เอ็นแก้วหนุบหนับ' },
+            { id: 'm5', category: 'side', name: 'ไส้หมู + ไข่ต้มพะโล้', price: 80, icon: '🥚', description: 'ไส้หมูสะอาดไร้กลิ่น พร้อมไข่พะโล้ ยางมะตอม' },
+            { id: 'm6', category: 'side', name: 'ขาหมูรวมมิตร (จานใหญ่)', price: 220, icon: '🍲', description: 'เนื้อ หนัง คากิ ไส้ ไข่ เหมาะทาน 2-3 ท่าน' },
+            { id: 'm7', category: 'soup', name: 'ต้มแซ่บขาหมู', price: 90, icon: '🌶️', description: 'รสจัดจ้าน เปรี้ยวเผ็ดแซ่บ ตัดเลี่ยน' },
+            { id: 'm8', category: 'soup', name: 'มะระต้มซี่โครงหมู', price: 50, icon: '🥣', description: 'น้ำซุปกลมกล่อม มะระไม่ขม ซี่โครงเปื่อย' },
+            { id: 'm9', category: 'drink', name: 'น้ำอัดลม (กระป๋อง)', price: 20, icon: '🥤', description: 'โค้ก / แฟนต้า / สไปรท์ + น้ำแข็ง' },
+            { id: 'm10', category: 'drink', name: 'ชาดำเย็น / ชามะนาว', price: 25, icon: '🍹', description: 'หอมชาไทย เข้มข้นสดชื่น' }
+        ];
+
+        const EXTRA_OPTIONS = [
+            { id: 'opt1', name: 'ไม่เอาหนัง (เนื้อล้วน)', price: 0 },
+            { id: 'opt2', name: 'เพิ่มไข่พะโล้ (+12฿)', price: 12 },
+            { id: 'opt3', name: 'Extra ผักกาดดอง (+10฿)', price: 10 },
+            { id: 'opt4', name: 'แยกน้ำราด / แยกน้ำซุป', price: 0 },
+            { id: 'opt5', name: 'เพิ่มไส้หมู (+25฿)', price: 25 },
+            { id: 'opt6', name: 'ข้าวน้อย / ไม่เอาข้าว (-5฿)', price: -5 }
+        ];
+
+        let currentCart = [];
+        let orderHistory = JSON.parse(localStorage.getItem('khamoo_order_history') || '[]');
+        let shopPromptPay = localStorage.getItem('khamoo_promptpay_num') || '0842841808';
+        let selectedMenuItem = null;
+        let pendingCheckoutType = 'receipt';
+        let qrcodeObj = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initLiveClock();
+            generateOrderNumber();
+            initTableNumberFromURL();
+            updatePromptPayHeaderDisplay();
+            renderMenuGrid(MENU_ITEMS);
+            renderCart();
+        });
+
+        function initTableNumberFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tableParam = urlParams.get('table');
+            const tableInput = document.getElementById('tableNo');
+            
+            if (tableParam) {
+                if (/^\d+$/.test(tableParam)) {
+                    const formattedNum = String(tableParam).padStart(2, '0');
+                    tableInput.value = `T-${formattedNum}`;
+                } else {
+                    tableInput.value = tableParam;
+                }
+            } else {
+                tableInput.value = 'T-01';
+            }
+        }
+
+        function initLiveClock() {
+            const updateClock = () => {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('th-TH');
+                const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+                
+                if (document.getElementById('liveClock')) document.getElementById('liveClock').textContent = timeStr;
+                if (document.getElementById('liveDate')) document.getElementById('liveDate').textContent = dateStr;
+                if (document.getElementById('mobileLiveClock')) document.getElementById('mobileLiveClock').textContent = timeStr;
+                if (document.getElementById('mobileLiveDate')) document.getElementById('mobileLiveDate').textContent = dateStr;
+            };
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        function generateOrderNumber() {
+            const dateStr = new Date().toISOString().slice(2,10).replace(/-/g,'');
+            const rand = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('orderNum').value = `IMP-${dateStr}-${rand}`;
+        }
+
+        function updatePromptPayHeaderDisplay() {
+            const formatted = shopPromptPay.length === 10 
+                ? shopPromptPay.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')
+                : shopPromptPay;
+            document.getElementById('headerPromptPayDisplay').textContent = formatted;
+        }
+
+        function openPromptPaySettings() {
+            document.getElementById('promptPayInput').value = shopPromptPay;
+            document.getElementById('promptPaySettingsModal').classList.remove('hidden');
+        }
+
+        function closePromptPaySettings() {
+            document.getElementById('promptPaySettingsModal').classList.add('hidden');
+        }
+
+        function savePromptPaySetting() {
+            const val = document.getElementById('promptPayInput').value.trim().replace(/-/g, '');
+            if (val.length !== 10 && val.length !== 13) {
+                alert('กรุณากรอกเบอร์พร้อมเพย์ 10 หลัก หรือ เลขประจำตัว/บัตรประชาชน 13 หลักให้ถูกต้อง');
+                return;
+            }
+            shopPromptPay = val;
+            localStorage.setItem('khamoo_promptpay_num', val);
+            updatePromptPayHeaderDisplay();
+            closePromptPaySettings();
+        }
+
+        function renderMenuGrid(items) {
+            const grid = document.getElementById('menuGrid');
+            const subNote = i18n[currentLang].selectOptionsNote;
+            
+            grid.innerHTML = items.map(item => `
+                <div onclick="openOptionModal('${item.id}')" class="glass-card rounded-2xl p-4 flex flex-col justify-between cursor-pointer group border border-red-100 hover:border-red-600 transition">
+                    <div>
+                        <div class="flex items-start justify-between mb-2">
+                            <span class="text-3xl p-2 rounded-2xl bg-red-50 group-hover:bg-red-600 group-hover:text-white transition duration-300">
+                                ${item.icon}
+                            </span>
+                            <span class="font-bold text-sm text-red-600 bg-white border border-red-200 px-2.5 py-1 rounded-xl shadow-sm">
+                                ฿${item.price}
+                            </span>
+                        </div>
+                        <h3 class="font-bold text-sm text-gray-900 group-hover:text-red-600 transition leading-snug">${item.name}</h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description}</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-red-50 flex items-center justify-between text-xs text-gray-500 font-medium">
+                        <span>${subNote}</span>
+                        <i class="fa-solid fa-circle-plus text-red-600 text-base group-hover:scale-110 transition"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(cat) {
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.classList.add('bg-red-600', 'text-white', 'border-red-600');
+                    btn.classList.remove('bg-white/90', 'text-gray-800', 'border-red-100');
+                } else {
+                    btn.classList.remove('bg-red-600', 'text-white', 'border-red-600');
+                    btn.classList.add('bg-white/90', 'text-gray-800', 'border-red-100');
+                }
+            });
+
+            if (cat === 'all') {
+                renderMenuGrid(MENU_ITEMS);
+            } else {
+                renderMenuGrid(MENU_ITEMS.filter(i => i.category === cat));
+            }
+        }
+
+        function openOptionModal(menuId) {
+            selectedMenuItem = MENU_ITEMS.find(m => m.id === menuId);
+            if(!selectedMenuItem) return;
+
+            document.getElementById('modalTitle').textContent = selectedMenuItem.name;
+            document.getElementById('modalPrice').textContent = `฿${selectedMenuItem.price.toFixed(2)}`;
+            document.getElementById('modalIcon').textContent = selectedMenuItem.icon;
+            document.getElementById('modalNote').value = '';
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = EXTRA_OPTIONS.map(opt => `
+                <label class="flex items-center gap-2 p-2 rounded-xl bg-gray-50/80 border border-gray-200 hover:border-red-500 cursor-pointer text-gray-800 transition">
+                    <input type="checkbox" value="${opt.id}" data-name="${opt.name}" data-price="${opt.price}" class="opt-checkbox rounded text-red-600 focus:ring-red-500">
+                    <span class="text-xs leading-tight">${opt.name}</span>
+                </label>
+            `).join('');
+
+            document.getElementById('optionModal').classList.remove('hidden');
+        }
+
+        function closeOptionModal() {
+            document.getElementById('optionModal').classList.add('hidden');
+            selectedMenuItem = null;
+        }
+
+        function confirmAddToCart() {
+            if (!selectedMenuItem) return;
+
+            const checkedOpts = Array.from(document.querySelectorAll('.opt-checkbox:checked')).map(cb => ({
+                name: cb.dataset.name,
+                price: parseFloat(cb.dataset.price)
+            }));
+
+            const note = document.getElementById('modalNote').value.trim();
+            const optionsTotal = checkedOpts.reduce((sum, o) => sum + o.price, 0);
+            const finalUnitPrice = selectedMenuItem.price + optionsTotal;
+
+            const cartItemKey = selectedMenuItem.id + '_' + checkedOpts.map(o => o.name).sort().join('_') + '_' + note;
+            const existingIndex = currentCart.findIndex(item => item.key === cartItemKey);
+
+            if (existingIndex > -1) {
+                currentCart[existingIndex].qty += 1;
+            } else {
+                currentCart.push({
+                    key: cartItemKey,
+                    id: selectedMenuItem.id,
+                    name: selectedMenuItem.name,
+                    basePrice: selectedMenuItem.price,
+                    unitPrice: finalUnitPrice,
+                    qty: 1,
+                    options: checkedOpts,
+                    note: note
+                });
+            }
+
+            closeOptionModal();
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const emptyState = document.getElementById('emptyCart');
+            const badge = document.getElementById('cartBadge');
+            const t = i18n[currentLang];
+
+            if (currentCart.length === 0) {
+                container.innerHTML = '';
+                container.appendChild(emptyState);
+                emptyState.classList.remove('hidden');
+                badge.textContent = `0 ${t.itemsCountBadge}`;
+                calculateTotal();
+                return;
+            }
+
+            let totalQty = 0;
+            container.innerHTML = currentCart.map((item, index) => {
+                totalQty += item.qty;
+                const optsText = item.options.map(o => o.name).join(', ');
+                return `
+                    <div class="p-3 rounded-2xl bg-white border border-red-100 flex flex-col gap-2 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-xs text-gray-900">${item.name}</h4>
+                                <div class="text-[11px] text-gray-500 font-medium">฿${item.unitPrice.toFixed(2)} / ${t.dishUnit}</div>
+                            </div>
+                            <span class="font-bold text-xs text-red-600">฿${(item.unitPrice * item.qty).toFixed(2)}</span>
+                        </div>
+
+                        ${optsText || item.note ? `
+                            <div class="text-[10px] text-gray-600 bg-red-50/50 p-1.5 rounded-lg border border-red-100 leading-tight">
+                                ${optsText ? `<span>• ${optsText}</span><br>` : ''}
+                                ${item.note ? `<span class="italic text-gray-500">${t.lblNote}: ${item.note}</span>` : ''}
+                            </div>
+                        ` : ''}
+
+                        <div class="flex justify-between items-center pt-1 border-t border-gray-100">
+                            <button onclick="removeItem(${index})" class="text-xs text-red-500 hover:text-red-700">
+                                <i class="fa-solid fa-trash-can"></i> ${t.deleteItem}
+                            </button>
+                            <div class="flex items-center gap-2 bg-gray-50 px-2 py-1 rounded-xl border border-gray-200">
+                                <button onclick="updateQty(${index}, -1)" class="w-5 h-5 rounded-lg bg-white border border-gray-300 text-gray-800 font-bold text-xs flex items-center justify-center hover:bg-red-600 hover:text-white transition">-</button>
+                                <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
+                                <button onclick="updateQty(${index}, 1)" class="w-5 h-5 rounded-lg bg-white border border-gray-300 text-gray-800 font-bold text-xs flex items-center justify-center hover:bg-red-600 hover:text-white transition">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            badge.textContent = `${totalQty} ${t.itemsCountBadge}`;
+            calculateTotal();
+        }
+
+        function updateQty(index, delta) {
+            if (currentCart[index]) {
+                currentCart[index].qty += delta;
+                if (currentCart[index].qty <= 0) {
+                    currentCart.splice(index, 1);
+                }
+                renderCart();
+            }
+        }
+
+        function removeItem(index) {
+            currentCart.splice(index, 1);
+            renderCart();
+        }
+
+        function clearCurrentOrder() {
+            if (currentCart.length === 0) return;
+            if (confirm('คุณต้องการล้างรายการอาหารทั้งหมดใช่หรือไม่?')) {
+                currentCart = [];
+                renderCart();
+            }
+        }
+
+        function calculateTotal() {
+            const subtotal = currentCart.reduce((sum, i) => sum + (i.unitPrice * i.qty), 0);
+            const discountPct = parseFloat(document.getElementById('discountPercent').value) || 0;
+            const vatPct = parseFloat(document.getElementById('vatPercent').value) || 0;
+
+            const discountAmount = (subtotal * discountPct) / 100;
+            const afterDiscount = subtotal - discountAmount;
+            const vatAmount = (afterDiscount * vatPct) / 100;
+            const grandTotal = afterDiscount + vatAmount;
+
+            document.getElementById('subtotalVal').textContent = `฿${subtotal.toFixed(2)}`;
+            document.getElementById('discountVal').textContent = `-฿${discountAmount.toFixed(2)}`;
+            document.getElementById('vatVal').textContent = `+฿${vatAmount.toFixed(2)}`;
+            document.getElementById('grandTotalVal').textContent = `฿${grandTotal.toFixed(2)}`;
+
+            return { subtotal, discountPct, discountAmount, vatPct, vatAmount, grandTotal };
+        }
+
+        function handleCheckoutProcess(docType) {
+            if (currentCart.length === 0) {
+                alert('กรุณาเลือกรายการอาหารก่อนทำรายการ');
+                return;
+            }
+
+            pendingCheckoutType = docType;
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+            if (paymentMethod === 'สแกน QR Code' || paymentMethod === 'โอนเงินผ่านบัญชี') {
+                showQRPaymentModal();
+            } else {
+                confirmPaymentAndGenerateDoc();
+            }
+        }
+
+        function generatePromptPayPayload(target, amount) {
+            const sanitizeTarget = target.replace(/[^0-9]/g, '');
+            let targetType = '01';
+            let formattedTarget = '';
+
+            if (sanitizeTarget.length === 10) {
+                targetType = '01';
+                formattedTarget = '0066' + sanitizeTarget.substring(1);
+            } else if (sanitizeTarget.length === 13) {
+                targetType = '02';
+                formattedTarget = sanitizeTarget;
+            } else {
+                formattedTarget = sanitizeTarget;
+            }
+
+            const f = (id, value) => id + String(value.length).padStart(2, '0') + value;
+            const merchantInfo = f('00', 'A000000677010111') + f(targetType, formattedTarget);
+            
+            let payload = 
+                f('00', '01') +
+                f('01', amount ? '12' : '11') +
+                f('29', merchantInfo) +
+                f('53', '764') +
+                (amount ? f('54', Number(amount).toFixed(2)) : '') +
+                f('58', 'TH') +
+                f('63', '0000');
+
+            const crc16 = (str) => {
+                let crc = 0xFFFF;
+                for (let i = 0; i < str.length; i++) {
+                    crc ^= str.charCodeAt(i) << 8;
+                    for (let j = 0; j < 8; j++) {
+                        if ((crc & 0x8000) !== 0) {
+                            crc = (crc << 1) ^ 0x1021;
+                        } else {
+                            crc = crc << 1;
+                        }
+                        crc &= 0xFFFF;
+                    }
+                }
+                return crc.toString(16).toUpperCase().padStart(4, '0');
+            };
+
+            const crcVal = crc16(payload.slice(0, -4));
+            return payload.slice(0, -4) + crcVal;
+        }
+
+        function showQRPaymentModal() {
+            const totals = calculateTotal();
+            const formattedPromptPay = shopPromptPay.length === 10 
+                ? shopPromptPay.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')
+                : shopPromptPay;
+
+            document.getElementById('qrModalAmount').textContent = `฿${totals.grandTotal.toFixed(2)}`;
+            document.getElementById('qrModalPromptPayNum').textContent = formattedPromptPay;
+
+            const qrPayload = generatePromptPayPayload(shopPromptPay, totals.grandTotal);
+            const qrContainer = document.getElementById('qrcodeCanvas');
+            qrContainer.innerHTML = '';
+
+            qrcodeObj = new QRCode(qrContainer, {
+                text: qrPayload,
+                width: 180,
+                height: 180,
+                colorDark : "#DC2626",
+                colorLight : "#FFFFFF",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+
+            document.getElementById('qrPaymentModal').classList.remove('hidden');
+        }
+
+        function closeQRPaymentModal() {
+            document.getElementById('qrPaymentModal').classList.add('hidden');
+        }
+
+        function confirmPaymentAndGenerateDoc() {
+            closeQRPaymentModal();
+
+            const totals = calculateTotal();
+            const orderNum = document.getElementById('orderNum').value;
+            const tableNo = document.getElementById('tableNo').value || 'T-01';
+            const diningType = document.getElementById('diningType').value;
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+            // ส่งข้อมูลออเดอร์เข้าห้องครัว (kitchen.html)
+            const kitchenOrderData = {
+                id: orderNum,
+                time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+                table: tableNo,
+                type: diningType,
+                items: currentCart.map(item => ({
+                    name: item.name,
+                    quantity: item.qty,
+                    options: item.options.map(o => o.name),
+                    note: item.note
+                })),
+                total: totals.grandTotal,
+                paymentMethod: paymentMethod,
+                status: 'pending'
+            };
+
+            sendOrderToKitchen(kitchenOrderData);
+
+            // บันทึกประวัติสั่งซื้อเข้า LocalStorage แบบสมบูรณ์
+            saveOrderHistory(orderNum, tableNo, diningType, totals.grandTotal, paymentMethod, pendingCheckoutType);
+
+            // พิมพ์/แสดงเอกสารใบเสร็จ
+            renderDocumentTemplate(pendingCheckoutType);
+        }
+
+        // 🌟 ปรับแก้ให้เก็บข้อมูลรายการสินค้าครบถ้วนเพื่อเปิดดูบิลย้อนหลังได้
+        function saveOrderHistory(orderNum, tableNo, diningType, grandTotal, paymentMethod, docType) {
+            orderHistory = JSON.parse(localStorage.getItem('khamoo_order_history') || '[]');
+            const totals = calculateTotal();
+
+            const orderRecord = {
+                orderNum,
+                tableNo,
+                diningType,
+                itemsCount: currentCart.reduce((s, i) => s + i.qty, 0),
+                items: JSON.parse(JSON.stringify(currentCart)),
+                subtotal: totals.subtotal,
+                discountPct: totals.discountPct,
+                discountAmount: totals.discountAmount,
+                vatPct: totals.vatPct,
+                vatAmount: totals.vatAmount,
+                grandTotal,
+                paymentMethod,
+                docType,
+                customerName: document.getElementById('customerName').value || '',
+                timestamp: new Date().toLocaleString('th-TH')
+            };
+
+            const existingIndex = orderHistory.findIndex(o => o.orderNum === orderNum && o.docType === docType);
+            if (existingIndex === -1) {
+                orderHistory.unshift(orderRecord);
+            } else {
+                orderHistory[existingIndex] = orderRecord;
+            }
+            
+            localStorage.setItem('khamoo_order_history', JSON.stringify(orderHistory));
+        }
+
+        function renderDocumentTemplate(type) {
+            const totals = calculateTotal();
+            const orderNum = document.getElementById('orderNum').value;
+            const tableNo = document.getElementById('tableNo').value || 'T-01';
+            const t = i18n[currentLang];
+            const customerName = document.getElementById('customerName').value || t.phCustomerName;
+            const diningType = document.getElementById('diningType').value;
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const now = new Date().toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
+
+            const pdfContainer = document.getElementById('pdfContent');
+
+            if (type === 'slip') {
+                pdfContainer.innerHTML = `
+                    <div class="text-center pb-2 border-b-2 border-black mb-3">
+                        <h2 class="text-base font-bold uppercase tracking-widest">${t.kitchenSlipHeader}</h2>
+                        <div class="text-xs font-bold text-gray-800">${t.shopTitle}</div>
+                    </div>
+                    <div class="text-xs space-y-1 mb-3">
+                        <div class="flex justify-between font-bold text-sm bg-gray-100 p-1.5 rounded border border-gray-300">
+                            <span>${t.lblTableNo}: ${tableNo}</span>
+                            <span>[ ${diningType} ]</span>
+                        </div>
+                        <div class="flex justify-between text-gray-700 pt-1">
+                            <span>${t.lblOrderNum}: ${orderNum}</span>
+                        </div>
+                        <div class="text-gray-700">${t.dateTimeLbl}: ${now}</div>
+                    </div>
+
+                    <table class="w-full text-xs text-left mb-4 border-collapse">
+                        <thead>
+                            <tr class="border-y border-black font-bold">
+                                <th class="py-1">${t.itemColLbl}</th>
+                                <th class="py-1 text-center">${t.qtyColLbl}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            ${currentCart.map(i => `
+                                <tr>
+                                    <td class="py-1.5 pr-2">
+                                        <div class="font-bold text-sm">${i.name}</div>${i.options.length ? `<div class="text-[10px] text-gray-600">• ${i.options.map(o => o.name).join(', ')}</div>` : ''}
+                                        ${i.note ? `<div class="text-[10px] text-red-600 font-medium italic">${t.lblNote}: ${i.note}</div>` : ''}
+                                    </td>
+                                    <td class="py-1.5 text-center font-bold text-base align-top">${i.qty}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="border-t border-black pt-2 text-center text-xs text-gray-600">
+                        ${t.kitchenSlipFooter}
+                    </div>
+                `;
+            } else {
+                pdfContainer.innerHTML = `
+                    <div class="text-center pb-3 border-b border-black mb-3">
+                        <div class="text-xl font-black tracking-widest text-black mb-0.5">${t.shopTitle}</div>
+                        <div class="text-[10px] text-gray-600 uppercase tracking-wider">Imperial Pork Knuckle Restaurant</div>
+                        <div class="text-[11px] text-gray-700 mt-1">${t.receiptSubHeader}</div>
+                        <div class="text-xs font-bold mt-2 border-y border-black py-0.5 uppercase">${t.receiptHeader}</div>
+                    </div>
+
+                    <div class="text-[11px] space-y-0.5 mb-3 text-gray-800">
+                        <div class="flex justify-between"><span>${t.receiptNoLbl}:</span> <span class="font-bold">${orderNum}</span></div>
+                        <div class="flex justify-between"><span>${t.dateTimeLbl}:</span> <span>${now}</span></div>
+                        <div class="flex justify-between"><span>${t.tableDiningLbl}:</span> <span>${tableNo} (${diningType})</span></div>
+                        <div class="flex justify-between"><span>${t.customerLbl}:</span> <span>${customerName}</span></div>
+                    </div>
+
+                    <table class="w-full text-xs text-left mb-3 border-collapse">
+                        <thead>
+                            <tr class="border-y border-black font-bold">
+                                <th class="py-1">${t.itemColLbl}</th>
+                                <th class="py-1 text-center">${t.qtyColLbl}</th>
+                                <th class="py-1 text-right">${t.totalColLbl}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            ${currentCart.map(i => `
+                                <tr>
+                                    <td class="py-1.5 pr-1">
+                                        <div class="font-semibold">${i.name}</div>${i.options.length ? `<div class="text-[9px] text-gray-500">${i.options.map(o => o.name).join(', ')}</div>` : ''}
+                                    </td>
+                                    <td class="py-1.5 text-center align-top">${i.qty}</td>
+                                    <td class="py-1.5 text-right font-medium align-top">${(i.unitPrice * i.qty).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="border-t border-black pt-2 space-y-1 text-xs">
+                        <div class="flex justify-between">
+                            <span>${t.subtotalPrintLbl}</span>
+                            <span>฿${totals.subtotal.toFixed(2)}</span>
+                        </div>
+                        ${totals.discountAmount > 0 ? `
+                        <div class="flex justify-between text-red-600">
+                            <span>${t.lblDiscountAmt} (${totals.discountPct}%)</span>
+                            <span>-฿${totals.discountAmount.toFixed(2)}</span>
+                        </div>` : ''}
+                        ${totals.vatAmount > 0 ? `
+                        <div class="flex justify-between">
+                            <span>${t.lblVatAmt} (${totals.vatPct}%)</span>
+                            <span>+฿${totals.vatAmount.toFixed(2)}</span>
+                        </div>` : ''}
+                        
+                        <div class="flex justify-between font-extrabold text-sm border-y border-black py-1 my-1">
+                            <span>${t.lblGrandTotal}</span>
+                            <span>฿${totals.grandTotal.toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between text-[11px] text-gray-700">
+                            <span>${t.lblPaymentMethod}</span>
+                            <span class="font-bold">${paymentMethod} ${t.paidStatusLbl}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-4 mt-3 border-t border-dashed border-gray-400 text-[11px] text-gray-600">
+                        <p class="font-bold text-black">${t.thankYouText}</p>
+                        <p class="text-[9px] text-gray-400 mt-0.5">${t.comeAgainText}</p>
+                    </div>
+                `;
+            }
+
+            const alertBox = document.getElementById('orderSuccessAlert');
+            if (alertBox) alertBox.classList.add('hidden');
+
+            document.getElementById('documentModal').classList.remove('hidden');
+        }
+
+        function completeOrderProcess() {
+            const alertBox = document.getElementById('orderSuccessAlert');
+            if (alertBox) alertBox.classList.remove('hidden');
+
+            currentCart = [];
+            renderCart();
+            document.getElementById('customerName').value = '';
+            generateOrderNumber();
+
+            setTimeout(() => {
+                if (alertBox) alertBox.classList.add('hidden');
+                closeDocumentModal();
+            }, 1200);
+        }
+
+        function closeDocumentModal() {
+            document.getElementById('documentModal').classList.add('hidden');
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('pdfContent');
+            const orderNum = document.getElementById('orderNum').value;
+            const filename = `${pendingCheckoutType === 'slip' ? 'KitchenSlip' : 'Receipt'}_${orderNum}.pdf`;
+
+            if (typeof html2pdf === 'undefined') {
+                alert('ระบบกำลังโหลดโมดูล PDF กรุณาลองใหม่อีกครั้ง');
+                return;
+            }
+
+            const btn = document.getElementById('pdfDownloadBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังสร้าง PDF...';
+            btn.disabled = true;
+
+            const opt = {
+                margin:       [3, 3, 3, 3],
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false },
+                jsPDF:        { unit: 'mm', format: [80, 150], orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error('PDF error:', err);
+                alert('เกิดข้อผิดพลาดในการดาวน์โหลด PDF กรุณาใช้ปุ่ม "พิมพ์ทันที" แทน');
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            });
+        }
+
+        function printDocumentDirect() {
+            window.print();
+        }
+
+        function toggleHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            if (modal.classList.contains('hidden')) {
+                renderHistory();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // 🌟 ฟังก์ชันดึงบิลย้อนหลังมาแสดงใน Modal Preview เพื่อดูหรือดาวน์โหลด PDF
+        function viewPastOrderBill(orderNum, docType) {
+            const allHistory = JSON.parse(localStorage.getItem('khamoo_order_history') || '[]');
+            const order = allHistory.find(o => o.orderNum === orderNum && o.docType === docType);
+
+            if (!order) {
+                alert('ไม่พบข้อมูลเอกสารย้อนหลัง');
+                return;
+            }
+
+            pendingCheckoutType = docType;
+            document.getElementById('orderNum').value = order.orderNum;
+            const t = i18n[currentLang];
+            const customerName = order.customerName || t.phCustomerName;
+            const pdfContainer = document.getElementById('pdfContent');
+
+            if (docType === 'slip') {
+                pdfContainer.innerHTML = `
+                    <div class="text-center pb-2 border-b-2 border-black mb-3">
+                        <h2 class="text-base font-bold uppercase tracking-widest">${t.kitchenSlipHeader}</h2>
+                        <div class="text-xs font-bold text-gray-800">${t.shopTitle}</div>
+                    </div>
+                    <div class="text-xs space-y-1 mb-3">
+                        <div class="flex justify-between font-bold text-sm bg-gray-100 p-1.5 rounded border border-gray-300">
+                            <span>${t.lblTableNo}: ${order.tableNo}</span>
+                            <span>[ ${order.diningType} ]</span>
+                        </div>
+                        <div class="flex justify-between text-gray-700 pt-1">
+                            <span>${t.lblOrderNum}: ${order.orderNum}</span>
+                        </div>
+                        <div class="text-gray-700">${t.dateTimeLbl}: ${order.timestamp}</div>
+                    </div>
+
+                    <table class="w-full text-xs text-left mb-4 border-collapse">
+                        <thead>
+                            <tr class="border-y border-black font-bold">
+                                <th class="py-1">${t.itemColLbl}</th>
+                                <th class="py-1 text-center">${t.qtyColLbl}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            ${(order.items || []).map(i => `
+                                <tr>
+                                    <td class="py-1.5 pr-2">
+                                        <div class="font-bold text-sm">${i.name}</div>
+                                        ${i.options && i.options.length ? `<div class="text-[10px] text-gray-600">• ${i.options.map(o => o.name).join(', ')}</div>` : ''}
+                                        ${i.note ? `<div class="text-[10px] text-red-600 font-medium italic">${t.lblNote}: ${i.note}</div>` : ''}
+                                    </td>
+                                    <td class="py-1.5 text-center font-bold text-base align-top">${i.qty}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="border-t border-black pt-2 text-center text-xs text-gray-600">
+                        ${t.kitchenSlipFooter}
+                    </div>
+                `;
+            } else {
+                pdfContainer.innerHTML = `
+                    <div class="text-center pb-3 border-b border-black mb-3">
+                        <div class="text-xl font-black tracking-widest text-black mb-0.5">${t.shopTitle}</div>
+                        <div class="text-[10px] text-gray-600 uppercase tracking-wider">Imperial Pork Knuckle Restaurant</div>
+                        <div class="text-[11px] text-gray-700 mt-1">${t.receiptSubHeader}</div>
+                        <div class="text-xs font-bold mt-2 border-y border-black py-0.5 uppercase">${t.receiptHeader}</div>
+                    </div>
+
+                    <div class="text-[11px] space-y-0.5 mb-3 text-gray-800">
+                        <div class="flex justify-between"><span>${t.receiptNoLbl}:</span> <span class="font-bold">${order.orderNum}</span></div>
+                        <div class="flex justify-between"><span>${t.dateTimeLbl}:</span> <span>${order.timestamp}</span></div>
+                        <div class="flex justify-between"><span>${t.tableDiningLbl}:</span> <span>${order.tableNo} (${order.diningType})</span></div>
+                        <div class="flex justify-between"><span>${t.customerLbl}:</span> <span>${customerName}</span></div>
+                    </div>
+
+                    <table class="w-full text-xs text-left mb-3 border-collapse">
+                        <thead>
+                            <tr class="border-y border-black font-bold">
+                                <th class="py-1">${t.itemColLbl}</th>
+                                <th class="py-1 text-center">${t.qtyColLbl}</th>
+                                <th class="py-1 text-right">${t.totalColLbl}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            ${(order.items || []).map(i => `
+                                <tr>
+                                    <td class="py-1.5 pr-1">
+                                        <div class="font-semibold">${i.name}</div>
+                                        ${i.options && i.options.length ? `<div class="text-[9px] text-gray-500">${i.options.map(o => o.name).join(', ')}</div>` : ''}
+                                    </td>
+                                    <td class="py-1.5 text-center align-top">${i.qty}</td>
+                                    <td class="py-1.5 text-right font-medium align-top">${(i.unitPrice * i.qty).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="border-t border-black pt-2 space-y-1 text-xs">
+                        <div class="flex justify-between">
+                            <span>${t.subtotalPrintLbl}</span>
+                            <span>฿${(order.subtotal || 0).toFixed(2)}</span>
+                        </div>
+                        ${order.discountAmount > 0 ? `
+                        <div class="flex justify-between text-red-600">
+                            <span>${t.lblDiscountAmt} (${order.discountPct}%)</span>
+                            <span>-฿${order.discountAmount.toFixed(2)}</span>
+                        </div>` : ''}
+                        ${order.vatAmount > 0 ? `
+                        <div class="flex justify-between">
+                            <span>${t.lblVatAmt} (${order.vatPct}%)</span>
+                            <span>+฿${order.vatAmount.toFixed(2)}</span>
+                        </div>` : ''}
+                        
+                        <div class="flex justify-between font-extrabold text-sm border-y border-black py-1 my-1">
+                            <span>${t.lblGrandTotal}</span>
+                            <span>฿${order.grandTotal.toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between text-[11px] text-gray-700">
+                            <span>${t.lblPaymentMethod}</span>
+                            <span class="font-bold">${order.paymentMethod} ${t.paidStatusLbl}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-4 mt-3 border-t border-dashed border-gray-400 text-[11px] text-gray-600">
+                        <p class="font-bold text-black">${t.thankYouText}</p>
+                        <p class="text-[9px] text-gray-400 mt-0.5">${t.comeAgainText}</p>
+                    </div>
+                `;
+            }
+
+            const alertBox = document.getElementById('orderSuccessAlert');
+            if (alertBox) alertBox.classList.add('hidden');
+
+            toggleHistoryModal();
+            document.getElementById('documentModal').classList.remove('hidden');
+        }
+
+        // 🌟 ปรับแต่งการดึงประวัติสั่งซื้อให้กรองแยกเฉพาะหมายเลขโต๊ะปัจจุบัน พร้อมปุ่มดูบิล/PDF
+        function renderHistory() {
+            const currentTableNo = document.getElementById('tableNo').value || 'T-01';
+            document.getElementById('historyTableTitle').textContent = `(${currentTableNo})`;
+
+            const allHistory = JSON.parse(localStorage.getItem('khamoo_order_history') || '[]');
+            const tableHistory = allHistory.filter(item => item.tableNo === currentTableNo);
+
+            const container = document.getElementById('historyList');
+            document.getElementById('historyCount').textContent = `รวมเฉพาะ ${currentTableNo}: ${tableHistory.length} ออเดอร์`;
+
+            if (tableHistory.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">ยังไม่มีประวัติการสั่งซื้อของ ${currentTableNo}</div>`;
+                return;
+            }
+
+            container.innerHTML = tableHistory.map(item => `
+                <div class="p-3 rounded-2xl bg-white border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs shadow-sm gap-2">
+                    <div>
+                        <div class="font-bold text-gray-900 flex items-center gap-2">
+                            <span>${item.orderNum}</span>
+                            <span class="text-[10px] font-normal px-2 py-0.5 rounded-full ${item.docType === 'receipt' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-800'}">
+                                ${item.docType === 'receipt' ? 'ใบเสร็จ' : 'ใบส่งครัว'}
+                            </span>
+                        </div>
+                        <div class="text-gray-500 text-[11px] mt-0.5">
+                            โต๊ะ ${item.tableNo} • ${item.diningType} • ${item.itemsCount} รายการ • ${item.paymentMethod}
+                        </div>
+                        <div class="text-[10px] text-gray-400">${item.timestamp}</div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between w-full sm:w-auto sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+                        <div class="font-black text-sm text-red-600 sm:text-right">฿${item.grandTotal.toFixed(2)}</div>
+                        
+                        <button onclick="viewPastOrderBill('${item.orderNum}', '${item.docType}')" class="px-2.5 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 rounded-xl transition duration-150 flex items-center gap-1 font-bold text-[11px]">
+                            <i class="fa-solid fa-file-invoice"></i> ดูบิล / PDF
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            const currentTableNo = document.getElementById('tableNo').value || 'T-01';
+            if (confirm(`คุณต้องการลบประวัติการสั่งซื้อทั้งหมดของ ${currentTableNo} ใช่หรือไม่?`)) {
+                let allHistory = JSON.parse(localStorage.getItem('khamoo_order_history') || '[]');
+                allHistory = allHistory.filter(item => item.tableNo !== currentTableNo);
+                localStorage.setItem('khamoo_order_history', JSON.stringify(allHistory));
+                renderHistory();
+            }
+        }
+    </script>
+</body>
+</html>
